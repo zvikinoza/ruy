@@ -1,7 +1,6 @@
 use crate::token::Token;
-use crate::token::TokenType;
-use crate::token::TokenType::{Assign, Comma, Illegal, LBrace, LParen, Plus, RBrace, RParen, Semicolon};
 
+#[derive(Debug)]
 pub struct Lexer {
     input: String,
     read_position: usize,
@@ -19,15 +18,15 @@ impl Lexer {
             read_position: 0,
             ch: Lexer::NULL_STRING.to_string(),
         };
-        println!("new {}", l.ch);
+        l.read_char();
         l
     }
 
     pub fn next_token(&mut self) -> Token {
+        use crate::token::TokenType::*;
         self.eat_whitespace();
-        self.read_char();
-        // let input = "=+(){},;";
-        match self.ch.as_str() {
+
+        let token = match self.ch.as_str() {
             "=" => Token::new(Assign, self.ch.clone()),
             "+" => Token::new(Plus, self.ch.clone()),
             "(" => Token::new(LParen, self.ch.clone()),
@@ -36,27 +35,36 @@ impl Lexer {
             "}" => Token::new(RBrace, self.ch.clone()),
             "," => Token::new(Comma, self.ch.clone()),
             ";" => Token::new(Semicolon, self.ch.clone()),
-            _ => Token::new(Illegal, Lexer::NULL_STRING.to_string())
-        }
-        // Token{ token_type: TokenType::Illegal, literal: self.ch }
+            "\0" => Token::new(Eof, "".to_string()),
+            ch if char::is_alphabetic(ch.chars().next().unwrap()) => {
+                let ident = self.read_identifier();
+                return Token::new(Token::lookup_ident(&ident.as_str()), ident)
+            },
+            ch if char::is_numeric(ch.chars().next().unwrap()) => {
+                let num = self.read_number();
+                return Token::new(Int, num)
+            },
+            _ => Token::new(Illegal, Lexer::NULL_STRING.to_string()),
+        };
+        self.read_char();
+        token
     }
 
     pub fn read_char(&mut self) {
-        // dummy impl, to satisfy lserver
         if self.read_position >= self.input.len() {
-            self.ch = "\n".to_string();
+            self.ch = '\0'.to_string();
         } else {
-            self.ch = match self.input.chars().nth(self.read_position) {
-                None => Lexer::NULL_STRING.to_string(),
-                Some(t) => t.to_string(),
-            }
+            self.ch = self.input.chars().nth(self.read_position).unwrap().to_string();
         }
         self.position = self.read_position;
         self.read_position += 1;
     }
 
     pub fn eat_whitespace(&mut self) {
-        while self.ch.trim().is_empty() {
+        loop {
+            if self.ch != " " && self.ch != "\n" && self.ch != "\t" {
+                break;
+            }
             self.read_char();
         }
     }
@@ -65,16 +73,13 @@ impl Lexer {
         if self.read_position >= self.input.len() {
             Lexer::NULL_STRING.to_string()
         } else {
-            match self.input.chars().nth(self.read_position) {
-                None => Lexer::NULL_STRING.to_string(),
-                Some(t) => t.to_string(),
-            }
+           self.input.chars().nth(self.read_position).unwrap().to_string()
         }
     }
 
     pub fn read_identifier(&mut self) -> String {
         let start_pos = self.position;
-        while self.ch.chars().all(char::is_alphanumeric) {
+        while self.ch.chars().next().unwrap().is_ascii_alphabetic() {
             self.read_char()
         }
         self.input[start_pos..self.position].to_string()
@@ -82,7 +87,7 @@ impl Lexer {
 
     pub fn read_number(&mut self) -> String {
         let start_pos = self.position;
-        while self.ch.chars().all(char::is_numeric) {
+        while self.ch.chars().next().unwrap().is_ascii_digit() {
             self.read_char();
         }
         self.input[start_pos..self.position].to_string()

@@ -36,4 +36,12 @@ impl Token {
     pub fn new(token_type: TokenType, lit: String) -> Self {
         Token { token_type, literal: lit }
     }
+
+    pub fn lookup_ident(ident: &str) -> TokenType {
+        match ident {
+            "fn" => TokenType::Function,
+            "let" => TokenType::Let,
+            _ => TokenType::Identifier
+        }
+    }
 }
