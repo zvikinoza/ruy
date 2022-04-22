@@ -33,7 +33,7 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(ttype: TokenType, lit: &str) -> Self {
-        Token { token_type: ttype, literal: lit.to_string() }
+    pub fn new(token_type: TokenType, lit: String) -> Self {
+        Token { token_type, literal: lit }
     }
 }

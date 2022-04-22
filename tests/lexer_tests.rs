@@ -9,16 +9,16 @@ mod lexer_tests {
         use TokenType::*;
         let input = "=+(){},;";
         let tests = [
-            Token::new(Assign, &"=".to_string() ),
-            Token::new(Plus, &"+".to_string() ),
-            Token::new(LParen, &"(".to_string() ),
-            Token::new(RParen, &")".to_string() ),
-            Token::new(LBrace, &"{".to_string() ),
-            Token::new(RBrace, &"}".to_string() ),
-            Token::new(Comma, &",".to_string() ),
-            Token::new(Semicolon, &";".to_string())
+            Token::new(Assign, "=".to_string()),
+            Token::new(Plus, "+".to_string()),
+            Token::new(LParen, "(".to_string()),
+            Token::new(RParen, ")".to_string()),
+            Token::new(LBrace, "{".to_string()),
+            Token::new(RBrace, "}".to_string()),
+            Token::new(Comma, ",".to_string()),
+            Token::new(Semicolon, ";".to_string())
         ];
-        let lexer = ruy::lexer::Lexer::new(input.to_string());
+        let mut lexer = ruy::lexer::Lexer::new(input.to_string());
         for test in tests.iter(){
             let tok = lexer.next_token();
             assert_eq!(tok.token_type, test.token_type);
