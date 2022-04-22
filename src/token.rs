@@ -11,6 +11,15 @@ pub enum TokenType {
     // Operators
     Assign, 
     Plus,
+    Minus,
+    Bang,
+    Asterisk,
+    Slash,
+
+    LT,
+    GT,
+    Eq,
+    NotEq,
 
     // Delimiters
     Comma,
@@ -23,7 +32,12 @@ pub enum TokenType {
 
     // keywords
     Function,
-    Let
+    Let,
+    True,
+    False,
+    If,
+    Else,
+    Return,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -38,10 +52,16 @@ impl Token {
     }
 
     pub fn lookup_ident(ident: &str) -> TokenType {
+        use TokenType::*;
         match ident {
-            "fn" => TokenType::Function,
-            "let" => TokenType::Let,
-            _ => TokenType::Identifier
+            "fn" => Function,
+            "let" => Let,
+            "true" => True,
+            "false" => False,
+            "if" => If,
+            "else" => Else,
+            "return" => Return,
+            _ => Identifier
         }
     }
 }

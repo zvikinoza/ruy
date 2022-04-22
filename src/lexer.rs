@@ -10,6 +10,7 @@ pub struct Lexer {
 
 impl Lexer {
     const NULL_STRING: &'static str = "\0";
+    const NULL_CHAR: char = '\0';
 
     pub fn new(input: String) -> Self {
         let mut l = Lexer {
@@ -27,15 +28,35 @@ impl Lexer {
         self.eat_whitespace();
 
         let token = match self.ch.as_str() {
-            "=" => Token::new(Assign, self.ch.clone()),
+            "=" => {
+                if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::new(Eq, "==".to_string())
+                } else {
+                    Token::new(Assign, self.ch.clone())
+                }
+            },
+            "!" => {
+                if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::new(NotEq, "!=".to_string())
+                } else {
+                    Token::new(Bang, self.ch.clone())
+                }
+            },
+            "/" => Token::new(Slash, self.ch.clone()),
+            "*" => Token::new(Asterisk, self.ch.clone()),
+            "<" => Token::new(LT, self.ch.clone()),
+            ">" => Token::new(GT, self.ch.clone()),
             "+" => Token::new(Plus, self.ch.clone()),
+            "-" => Token::new(Minus, self.ch.clone()),
             "(" => Token::new(LParen, self.ch.clone()),
             ")" => Token::new(RParen, self.ch.clone()),
             "{" => Token::new(LBrace, self.ch.clone()),
             "}" => Token::new(RBrace, self.ch.clone()),
             "," => Token::new(Comma, self.ch.clone()),
             ";" => Token::new(Semicolon, self.ch.clone()),
-            "\0" => Token::new(Eof, "".to_string()),
+            Lexer::NULL_STRING => Token::new(Eof, "".to_string()),
             ch if char::is_alphabetic(ch.chars().next().unwrap()) => {
                 let ident = self.read_identifier();
                 return Token::new(Token::lookup_ident(&ident.as_str()), ident)
@@ -52,7 +73,7 @@ impl Lexer {
 
     pub fn read_char(&mut self) {
         if self.read_position >= self.input.len() {
-            self.ch = '\0'.to_string();
+            self.ch = Lexer::NULL_STRING.to_string();
         } else {
             self.ch = self.input.chars().nth(self.read_position).unwrap().to_string();
         }
@@ -69,11 +90,11 @@ impl Lexer {
         }
     }
 
-    pub fn peek_char(&self) -> String {
+    pub fn peek_char(&self) -> char {
         if self.read_position >= self.input.len() {
-            Lexer::NULL_STRING.to_string()
+            Lexer::NULL_CHAR
         } else {
-           self.input.chars().nth(self.read_position).unwrap().to_string()
+           self.input.chars().nth(self.read_position).unwrap()
         }
     }
 
