@@ -13,7 +13,7 @@ impl Lexer {
     const NULL_CHAR: char = '\0';
 
     pub fn new(input: String) -> Self {
-        let mut l = Lexer {
+        let mut l = Self {
             input: input.clone(),
             position: 0,
             read_position: 0,
